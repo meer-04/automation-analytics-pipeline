@@ -25,9 +25,21 @@ import java.util.stream.Collectors;
 public class DriverFactory extends ExecutionParameters {
 
     private static final Properties CONFIG_PROPERTIES = PropertiesHandler.getAllProperties("config");
+    private static DriverFactory instance = null;
     private ExecutionPlatform executionPlatform;
 
-    @Before()
+    // Private constructor prevents anyone else from saying "new DriverFactory()"
+    private DriverFactory() {
+        super();
+    }
+
+    public static DriverFactory getInstance() {
+        if (instance == null) {
+            instance = new DriverFactory();
+        }
+        return instance;
+    }
+
     public void initializeDriver() {
         executionPlatform = ExecutionPlatform.getPlatformName(getBrowser());
         createDriverInstance(executionPlatform);

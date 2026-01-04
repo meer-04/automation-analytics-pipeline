@@ -3,9 +3,8 @@ package com.fw.core;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.openqa.selenium.WebDriver;
-import org.testng.annotations.AfterMethod;
 
-public class DriverManager extends DriverFactory {
+public class DriverManager {
 
     @Getter(AccessLevel.PACKAGE)
     private static final ThreadLocal<WebDriver> driverThreadLocal = new ThreadLocal<>();
@@ -18,11 +17,10 @@ public class DriverManager extends DriverFactory {
         getDriverThreadLocal().set(driver);
     }
 
-    @AfterMethod
-    public void quitDriver() {
+    public static void unload() {
         if (getDriver() != null) {
             getDriver().quit();
-            getDriverThreadLocal().remove();
+            driverThreadLocal.remove();
         }
     }
 }
