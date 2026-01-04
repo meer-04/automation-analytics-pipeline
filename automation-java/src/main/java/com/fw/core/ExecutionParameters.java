@@ -4,31 +4,29 @@ import com.fw.utils.PropertiesHandler;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Optional;
-import org.testng.annotations.Parameters;
+import org.testng.Reporter;
 
 import java.util.Properties;
 
 @Getter(AccessLevel.PACKAGE)
 @Setter(AccessLevel.PACKAGE)
 public class ExecutionParameters {
-    private Properties configProperties = PropertiesHandler.getAllProperties("config");
+    private static final String CONFIG_PATH = "src/test/resources/configproperties/config.properties";
+    private static final Properties configProperties = PropertiesHandler.getAllProperties(CONFIG_PATH);
     private String browser;
     private String url;
 
-    @BeforeClass(alwaysRun = true)
-    @Parameters({"browser", "url"})
-    public void setupParameters(@Optional String browser, @Optional String url) {
-        this.browser = setValues("browser", browser);
-        this.url = setValues("url", url);
+    public ExecutionParameters() {
+        System.out.println("Fetching Execution Parameters...");
+        this.browser = setValues("browser");
+        this.url = setValues("url");
     }
 
-    String setValues(String key, String xmlParameter) {
+    String setValues(String key) {
         if (null != System.getProperty(key))
             return System.getProperty(key);
-        if (null != xmlParameter && !xmlParameter.isEmpty())
-            return xmlParameter;
+        String xmlPRop = Reporter.getCurrentTestResult().getTestContext().getCurrentXmlTest().getParameter(key);
+        if (xmlPRop != null) return xmlPRop;
         if (configProperties != null) {
             String prop = configProperties.getProperty(key);
             if (prop != null && !prop.isEmpty())

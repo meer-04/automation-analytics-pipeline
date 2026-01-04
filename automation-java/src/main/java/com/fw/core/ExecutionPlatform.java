@@ -1,5 +1,8 @@
 package com.fw.core;
 
+import com.fw.utils.Logger;
+import org.apache.logging.log4j.Level;
+
 import java.util.Arrays;
 
 public enum ExecutionPlatform {
@@ -9,8 +12,11 @@ public enum ExecutionPlatform {
         try {
             return ExecutionPlatform.valueOf(browserName.toUpperCase());
         } catch (IllegalArgumentException e) {
-            throw new RuntimeException("The platform '" + browserName +
-                    "' is not supported. Supported platforms are: " + Arrays.toString(ExecutionPlatform.values()));
+            Logger logger = new Logger(ExecutionPlatform.class);
+            logger.logMessage(Level.ERROR, "The platform '" + browserName +
+                    "' is not supported. Supported platforms are: " + Arrays.toString(ExecutionPlatform.values()) +
+                    "\n" + e.getMessage());
         }
+        return null;
     }
 }

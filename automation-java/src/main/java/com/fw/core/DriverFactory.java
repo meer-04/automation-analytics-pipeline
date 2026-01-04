@@ -25,14 +25,16 @@ import java.util.stream.Collectors;
 
 
 public class DriverFactory extends ExecutionParameters {
-
-    private static final Properties CONFIG_PROPERTIES = PropertiesHandler.getAllProperties("config");
+    private static final String CONFIG_PATH = "src/test/resources/configproperties/config.properties";
+    private static final Properties CONFIG_PROPERTIES = PropertiesHandler.getAllProperties(CONFIG_PATH);
     private static DriverFactory instance = null;
+    Logger logger;
     private ExecutionPlatform executionPlatform;
 
     // Private constructor prevents anyone else from saying "new DriverFactory()"
     private DriverFactory() {
         super();
+        logger = new Logger(DriverFactory.class);
     }
 
     public static DriverFactory getInstance() {
@@ -43,7 +45,6 @@ public class DriverFactory extends ExecutionParameters {
     }
 
     public void initializeDriver() {
-        Logger logger = new Logger(DriverFactory.class);
         executionPlatform = ExecutionPlatform.getPlatformName(getBrowser());
         createDriverInstance(executionPlatform);
         logger.logMessage(Level.INFO, "Initialized " + executionPlatform + " driver");
@@ -59,7 +60,7 @@ public class DriverFactory extends ExecutionParameters {
             MutableCapabilities capabilities = setCapabilities(platform);
             DriverManager.setDriver(configureDriver(platform, capabilities));
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize " + platform +
+            logger.logMessage(Level.ERROR, "Failed to initialize " + platform +
                     " driver. Check configurations. Error: " + e.getMessage());
         }
     }
@@ -71,7 +72,8 @@ public class DriverFactory extends ExecutionParameters {
             case FIREFOX -> setFirefoxOptions();
             case SAFARI -> {
                 if (!System.getProperty("os.name").toLowerCase().contains("mac")) {
-                    throw new RuntimeException("Safari execution is only supported on macOS. Current OS: " + System.getProperty("os.name"));
+                    logger.logMessage(Level.ERROR, platform + " execution is only supported on macOS. Current OS: "
+                            + System.getProperty("os.name"));
                 }
                 yield setSafariOptions();
             }
@@ -87,11 +89,7 @@ public class DriverFactory extends ExecutionParameters {
             case EDGE:
                 return new EdgeDriver((EdgeOptions) capabilities);
             case SAFARI:
-                String OS = System.getProperty("os.name");
-                if (OS.contains("mac"))
-                    return new SafariDriver((SafariOptions) capabilities);
-                else
-                    throw new RuntimeException(executionPlatform + " platform not available for operating systems other than Mac");
+                return new SafariDriver((SafariOptions) capabilities);
         }
         return null;
     }
@@ -170,14 +168,14 @@ public class DriverFactory extends ExecutionParameters {
     }
 
     private void setGlobalWaits() {
-        if (getConfigProperties().getProperty("page.load.timeout") != null) {
-            DriverManager.getDriver().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(Long.parseLong(getConfigProperties().getProperty("page.load.timeout"))));
+        if (CONFIG_PROPERTIES.getProperty("page.load.timeout") != null) {
+            DriverManager.getDriver().manage().timeouts().pageLoadTimeout(Duration.ofSeconds(Long.parseLong(CONFIG_PROPERTIES.getProperty("page.load.timeout"))));
         }
-        if (getConfigProperties().getProperty("implicit.wait") != null) {
-            DriverManager.getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(Long.parseLong(getConfigProperties().getProperty("implicit.wait"))));
+        if (CONFIG_PROPERTIES.getProperty("implicit.wait") != null) {
+            DriverManager.getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(Long.parseLong(CONFIG_PROPERTIES.getProperty("implicit.wait"))));
         }
-        if (getConfigProperties().getProperty("script.wait") != null) {
-            DriverManager.getDriver().manage().timeouts().scriptTimeout(Duration.ofSeconds(Long.parseLong(getConfigProperties().getProperty("script.wait"))));
+        if (CONFIG_PROPERTIES.getProperty("script.wait") != null) {
+            DriverManager.getDriver().manage().timeouts().scriptTimeout(Duration.ofSeconds(Long.parseLong(CONFIG_PROPERTIES.getProperty("script.wait"))));
         }
     }
 

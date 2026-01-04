@@ -14,8 +14,10 @@ public class ThreadConfigListener implements ISuiteListener {
         if (mavenThreadCount != null && !mavenThreadCount.isEmpty()) {
             // If Maven arg exists, override the XML value
             int count = Integer.parseInt(mavenThreadCount);
-            suite.getXmlSuite().setDataProviderThreadCount(count);
-            logger.logMessage(Level.INFO, "MAVEN OVERRIDE: Data Provider Thread Count set to: " + count);
+            if (count > 0) {
+                suite.getXmlSuite().setDataProviderThreadCount(count);
+                logger.logMessage(Level.INFO, "MAVEN OVERRIDE: Data Provider Thread Count set to: " + count);
+            }
         } else {
             logger.logMessage(Level.INFO, "XML CONFIG: Using thread count from testng.xml: "
                     + suite.getXmlSuite().getDataProviderThreadCount());
