@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+
+    <Properties>
+        <Property name="LOG_PATTERN">%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n</Property>
+        <Property name="APP_LOG_ROOT">./target/logs</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+        </Console>
+
+        <RollingFile name="RollingFile"
+                     fileName="${APP_LOG_ROOT}/automation.log"
+                     filePattern="${APP_LOG_ROOT}/archive/automation-%d{yyyy-MM-dd}-%i.log.gz">
+            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="10MB"/>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true"/>
+            </Policies>
+            <DefaultRolloverStrategy max="10"/>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <Root level="info">
+            <!--            <AppenderRef ref="Console"/> uncomment if you need to display in console too-->
+            <AppenderRef ref="RollingFile"/>
+        </Root>
+    </Loggers>
+
+</Configuration>
+
+        <!--%d{}: Date/Timestamp: The exact time the log was created-->
+        <!--[%t]: Thread Name: Which execution thread ran the code-->
+        <!--%-5level: Log Level: The severity (INFO, WARN, etc.). The -5 ensures it's always 5 characters wide for perfect alignment.-->
+        <!--%logger{36}: Logger Name: Usually the class name. {36} means it will shorten the package name if it's over 36 characters-->
+        <!--%msg: The Message: The actual text you wrote in your code-->
+        <!--%n: New Line: Moves the cursor to the next line for the next log entry-->

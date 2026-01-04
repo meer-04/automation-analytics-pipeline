@@ -1,8 +1,10 @@
 package com.fw.core;
 
 import com.fw.utils.CustomException;
+import com.fw.utils.Logger;
 import com.fw.utils.PropertiesHandler;
 import io.cucumber.java.Before;
+import org.apache.logging.log4j.Level;
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -41,11 +43,15 @@ public class DriverFactory extends ExecutionParameters {
     }
 
     public void initializeDriver() {
+        Logger logger = new Logger(DriverFactory.class);
         executionPlatform = ExecutionPlatform.getPlatformName(getBrowser());
         createDriverInstance(executionPlatform);
+        logger.logMessage(Level.INFO, "Initialized " + executionPlatform + " driver");
         setGlobalWaits();
         DriverManager.getDriver().manage().window().maximize();
+        logger.logMessage(Level.INFO, "Maximized the browser window");
         DriverManager.getDriver().get(getUrl());
+        logger.logMessage(Level.INFO, "Navigated to URL: " + getUrl());
     }
 
     private void createDriverInstance(ExecutionPlatform platform) {
