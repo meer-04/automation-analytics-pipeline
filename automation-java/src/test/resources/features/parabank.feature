@@ -15,3 +15,5 @@ Feature: Automation and Analysis Demo Pipeline - ParaBank
   Scenario: Verify user can fetch account overview and analyze data
     Given the user is on the login page
     When the user enters valid credentials for "user1"
+    And the user fetches data from the account overview page into "account_data" file
+    Then I analyze the fetched data for insights
