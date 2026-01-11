@@ -26,4 +26,9 @@ public class LoginSteps {
     @Then("the user validates the login failure message")
     public void theUserValidatesTheLoginFailureMessage() {
     }
+
+    @When("the user enters valid credentials for {string}")
+    public void theUserEntersValidCredentialsFor(String username) {
+        loginActions.enterValidCredentialsFor(username);
+    }
 }

@@ -2,6 +2,7 @@ package actions;
 
 import com.fw.core.Base;
 import com.fw.core.DriverManager;
+import com.fw.utils.FrameworkException;
 import com.fw.utils.Logger;
 import com.fw.utils.PageLoadWait;
 import io.qameta.allure.Param;
@@ -11,7 +12,10 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.time.Duration;
+import java.util.Properties;
 
 public class LoginActions extends Base {
     private static final By TXT_USERNAME = By.name("username");
@@ -36,6 +40,21 @@ public class LoginActions extends Base {
     public void enterInvalidCredentialsFor(String username) {
         String user = properties("user").getProperty("test." + username);
         loginParaBank(user, RandomStringUtils.randomAlphanumeric(8));
+    }
+
+    @Step("Enter valid credentials for {username}")
+    public void enterValidCredentialsFor(String username) {
+        Properties prop = new Properties();
+        try (FileInputStream fis = new FileInputStream(".env")) {
+            prop.load(fis);
+        } catch (IOException e) {
+            throw new FrameworkException("Could not find .env file");
+        }
+
+        String user = properties("user").getProperty("test." + username);
+        String pass = prop.getProperty(user.toUpperCase() + "_PASS");
+        System.out.println(pass);
+        loginParaBank(user, pass);
     }
 
     @Step("Login to ParaBank with username: {user} and password")
