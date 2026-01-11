@@ -6,28 +6,22 @@ import java.io.InputStream;
 import java.util.Properties;
 import java.util.Map;
 import java.util.HashMap;
-import java.util.stream.Collectors;
-
-import static org.apache.logging.log4j.Level.ERROR;
 
 public class PropertiesHandler {
 
     private static final Map<String, Properties> propertiesCache = new HashMap<>();
+    private static final String RESOURCE_PATH = "src/test/resources/properties/";
 
-    private static Properties loadFile(String fileNameWithPath) {
-        String fileName = fileNameWithPath.contains("/")
-                ? fileNameWithPath.substring(fileNameWithPath.lastIndexOf("/") + 1)
-                : fileNameWithPath;
+    private static Properties loadFile(String fileName) {
         if (!propertiesCache.containsKey(fileName)) {
             Properties props = new Properties();
-
+            String fileNameWithPath = RESOURCE_PATH + fileName + ".properties";
             try (InputStream input = new FileInputStream(fileNameWithPath)) {
                 props.load(input);
                 propertiesCache.put(fileName, props);
             } catch (IOException ex) {
                 Logger logger = new Logger(PropertiesHandler.class);
-                logger.logMessage(ERROR, "Could not find or load file: " + fileNameWithPath +
-                        "\n" + ex.getMessage());
+                throw new FrameworkException("Could not find or load file: " + fileNameWithPath, ex);
             }
         }
         return propertiesCache.get(fileName);
@@ -37,8 +31,8 @@ public class PropertiesHandler {
         return loadFile(fileName).getProperty(key);
     }
 
-    public static Properties getAllProperties(String fileNameWithPath) {
-        return loadFile(fileNameWithPath);
+    public static Properties getAllProperties(String fileName) {
+        return loadFile(fileName);
     }
 
     public static void clearCache() {

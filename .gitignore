@@ -1,6 +1,7 @@
 #Project files
 target/
 /automation-java/.allure/
+/automation-java/.env
 
 # Compiled class file
 *.class

@@ -11,15 +11,16 @@ import java.util.Properties;
 @Getter(AccessLevel.PACKAGE)
 @Setter(AccessLevel.PACKAGE)
 public class ExecutionParameters {
-    private static final String CONFIG_PATH = "src/test/resources/configproperties/config.properties";
-    private static final Properties configProperties = PropertiesHandler.getAllProperties(CONFIG_PATH);
+    private static final Properties configProperties = PropertiesHandler.getAllProperties("config");
     private String browser;
     private String url;
+    private boolean headless;
 
     public ExecutionParameters() {
         System.out.println("Fetching Execution Parameters...");
         this.browser = setValues("browser");
         this.url = setValues("url");
+        this.headless = System.getProperty("headless") != null && System.getProperty("headless").equalsIgnoreCase("true");
     }
 
     String setValues(String key) {

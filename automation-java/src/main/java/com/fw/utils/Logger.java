@@ -23,7 +23,6 @@ public class Logger {
     public void logMessage(Level level, String message) {
         logger.atLevel(level).log(message);
         System.out.println(level + ": " + message);
-        if (level.equals(Level.ERROR)) throw new AssertionError(message);
     }
 
     @Step("{0}: {1}")
@@ -31,20 +30,6 @@ public class Logger {
         logger.atLevel(level).log(message);
         System.out.println(level + ": " + message);
         ScreenshotUtils.captureAllureScreenshot(driver, "LogScreenshot");
-        if (level.equals(Level.ERROR)) throw new AssertionError(message);
-    }
-
-    @Step("Assert: {2}")
-    public void logAssertion(Object actual, Object expected, String message) {
-        if (actual.equals(expected)) {
-            System.out.println("Assertion Passed: " + actual + " equals " + expected);
-            logger.atLevel(Level.INFO).log("Assertion Passed: " + actual + " equals " + expected);
-        } else {
-            System.out.println("Assertion Failed: " + actual + " does not equal " + expected);
-            logger.atLevel(Level.ERROR).log("Assertion Failed: " + actual + " does not equal " + expected);
-            ScreenshotUtils.captureAllureScreenshot(driver, "AssertionFailureScreenshot");
-            Assert.assertEquals(actual, expected, message);
-        }
     }
 
 }

@@ -1,9 +1,9 @@
 package com.fw.core;
 
-import com.fw.utils.CustomException;
+import com.fw.utils.FrameworkException;
 import com.fw.utils.Logger;
+import com.fw.utils.PageLoadWait;
 import com.fw.utils.PropertiesHandler;
-import io.cucumber.java.Before;
 import org.apache.logging.log4j.Level;
 import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
@@ -17,19 +17,14 @@ import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.safari.SafariOptions;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
 public class DriverFactory extends ExecutionParameters {
-    private static final String CONFIG_PATH = "src/test/resources/configproperties/config.properties";
-    private static final Properties CONFIG_PROPERTIES = PropertiesHandler.getAllProperties(CONFIG_PATH);
-    private static DriverFactory instance = null;
+    private static final Properties CONFIG_PROPERTIES = PropertiesHandler.getAllProperties("config");
+    private static DriverFactory driverFactoryInstance = null;
     Logger logger;
-    private ExecutionPlatform executionPlatform;
 
     // Private constructor prevents anyone else from saying "new DriverFactory()"
     private DriverFactory() {
@@ -38,14 +33,14 @@ public class DriverFactory extends ExecutionParameters {
     }
 
     public static DriverFactory getInstance() {
-        if (instance == null) {
-            instance = new DriverFactory();
+        if (driverFactoryInstance == null) {
+            driverFactoryInstance = new DriverFactory();
         }
-        return instance;
+        return driverFactoryInstance;
     }
 
     public void initializeDriver() {
-        executionPlatform = ExecutionPlatform.getPlatformName(getBrowser());
+        ExecutionPlatform executionPlatform = ExecutionPlatform.getPlatformName(getBrowser());
         createDriverInstance(executionPlatform);
         logger.logMessage(Level.INFO, "Initialized " + executionPlatform + " driver");
         setGlobalWaits();
@@ -53,6 +48,12 @@ public class DriverFactory extends ExecutionParameters {
         logger.logMessage(Level.INFO, "Maximized the browser window");
         DriverManager.getDriver().get(getUrl());
         logger.logMessage(Level.INFO, "Navigated to URL: " + getUrl());
+        DriverManager.getDriver().manage().deleteAllCookies();
+        logger.logMessage(Level.INFO, "Cookies deleted");
+        DriverManager.getDriver().navigate().refresh();
+        PageLoadWait.waitForPageLoad(DriverManager.getDriver(), Duration.ofSeconds(30));
+        logger.logMessage(Level.INFO, "Refreshed URL: " + getUrl());
+
     }
 
     private void createDriverInstance(ExecutionPlatform platform) {
@@ -60,8 +61,8 @@ public class DriverFactory extends ExecutionParameters {
             MutableCapabilities capabilities = setCapabilities(platform);
             DriverManager.setDriver(configureDriver(platform, capabilities));
         } catch (Exception e) {
-            logger.logMessage(Level.ERROR, "Failed to initialize " + platform +
-                    " driver. Check configurations. Error: " + e.getMessage());
+            throw new FrameworkException("Failed to initialize " + platform +
+                    " driver. Check configurations. Error: ", e);
         }
     }
 
@@ -72,7 +73,7 @@ public class DriverFactory extends ExecutionParameters {
             case FIREFOX -> setFirefoxOptions();
             case SAFARI -> {
                 if (!System.getProperty("os.name").toLowerCase().contains("mac")) {
-                    logger.logMessage(Level.ERROR, platform + " execution is only supported on macOS. Current OS: "
+                    throw new FrameworkException(platform + " execution is only supported on macOS. Current OS: "
                             + System.getProperty("os.name"));
                 }
                 yield setSafariOptions();
@@ -100,7 +101,11 @@ public class DriverFactory extends ExecutionParameters {
         // Argument Handling
         String extraArgs = CONFIG_PROPERTIES.getProperty("chrome.options");
         if (extraArgs != null && !extraArgs.isEmpty()) {
-            chromeOptions.addArguments(Arrays.asList(extraArgs.split(";")));
+            List<String> argsList = new ArrayList<>(Arrays.asList(extraArgs.split(";")));
+            if (System.getProperty("headless") != null && System.getProperty("headless").equalsIgnoreCase("false")) {
+                argsList.remove("--headless");
+            }
+            chromeOptions.addArguments(argsList);
         }
         // Capabilities Handling
         Map<String, Object> additionalCaps = getAdditionalCapabilities("chrome");
@@ -116,7 +121,11 @@ public class DriverFactory extends ExecutionParameters {
         // Argument Handling
         String extraArgs = CONFIG_PROPERTIES.getProperty("edge.options");
         if (extraArgs != null && !extraArgs.isEmpty()) {
-            edgeOptions.addArguments(Arrays.asList(extraArgs.split(";")));
+            List<String> argsList = new ArrayList<>(Arrays.asList(extraArgs.split(";")));
+            if (System.getProperty("headless") != null && System.getProperty("headless").equalsIgnoreCase("false")) {
+                argsList.remove("--headless");
+            }
+            edgeOptions.addArguments(argsList);
         }
         // Capabilities Handling
         Map<String, Object> additionalCaps = getAdditionalCapabilities("edge");
@@ -132,7 +141,11 @@ public class DriverFactory extends ExecutionParameters {
         // Argument Handling
         String extraArgs = CONFIG_PROPERTIES.getProperty("firefox.options");
         if (extraArgs != null && !extraArgs.isEmpty()) {
-            firefoxOptions.addArguments(Arrays.asList(extraArgs.split(";")));
+            List<String> argsList = new ArrayList<>(Arrays.asList(extraArgs.split(";")));
+            if (System.getProperty("headless") != null && System.getProperty("headless").equalsIgnoreCase("false")) {
+                argsList.remove("--headless");
+            }
+            firefoxOptions.addArguments(argsList);
         }
         // Capabilities Handling
         Map<String, Object> additionalCaps = getAdditionalCapabilities("firefox");
@@ -182,8 +195,8 @@ public class DriverFactory extends ExecutionParameters {
 
     private Map<String, Object> getAdditionalCapabilities(String browser) {
         return getBrowserPropertiesFromConfig(browser, "caps").entrySet().stream().collect(Collectors.toMap(
-                e -> String.valueOf(e.getKey()),
-                e -> e.getValue()));
+                k -> String.valueOf(k.getKey()),
+                v -> v.getValue()));
     }
 
     private Map<String, Object> getAdditionalPreferences() {
