@@ -1,6 +1,6 @@
 @parabank
 @allure.label.epic:AutomationDemoTest
-@allure.label.feature:FeatureOpenCart
+@allure.label.feature:FeatureAutomationAndAnalysisDemoPipelineParaBank
 Feature: Automation and Analysis Demo Pipeline - ParaBank
 
   @negativeLogin
@@ -16,4 +16,4 @@ Feature: Automation and Analysis Demo Pipeline - ParaBank
     Given the user is on the login page
     When the user enters valid credentials for "user1"
     And the user fetches data from the account overview page into "account_data" file
-    Then I analyze the fetched data for insights
+    Then the user validates the data is fetched and stored successfully in "account_data" file
