@@ -9,6 +9,7 @@ import io.qameta.allure.Param;
 import io.qameta.allure.Step;
 import io.qameta.allure.model.Parameter;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.logging.log4j.Level;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 
@@ -53,8 +54,11 @@ public class LoginActions extends Base {
 
         String user = properties("user").getProperty("test." + username);
         String pass = prop.getProperty(user.toUpperCase() + "_PASS");
-        System.out.println(pass);
+        if (pass == null) {
+            throw new FrameworkException("Password not found for user: " + user);
+        }
         loginParaBank(user, pass);
+        logger.logMessage(Level.INFO, "Logged in to ParaBank with user: " + user);
     }
 
     @Step("Login to ParaBank with username: {user} and password")

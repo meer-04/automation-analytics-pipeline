@@ -48,12 +48,7 @@ public class DriverFactory extends ExecutionParameters {
         logger.logMessage(Level.INFO, "Maximized the browser window");
         DriverManager.getDriver().get(getUrl());
         logger.logMessage(Level.INFO, "Navigated to URL: " + getUrl());
-        DriverManager.getDriver().manage().deleteAllCookies();
-        logger.logMessage(Level.INFO, "Cookies deleted");
-        DriverManager.getDriver().navigate().refresh();
         PageLoadWait.waitForPageLoad(DriverManager.getDriver(), Duration.ofSeconds(30));
-        logger.logMessage(Level.INFO, "Refreshed URL: " + getUrl());
-
     }
 
     private void createDriverInstance(ExecutionPlatform platform) {

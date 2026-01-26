@@ -1,5 +1,7 @@
 package com.fw.utils;
 
+import io.qameta.allure.Step;
+
 import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -12,10 +14,19 @@ public class CSVUtil {
     private CSVUtil() {
     }
 
+    @Step("Write data to CSV file at {filePath}")
     public static void writeCsv(Path filePath, List<String> headers, List<List<String>> rows) {
         try {
             // Ensure parent directories exist
             Files.createDirectories(filePath.getParent());
+
+            if (headers == null || headers.isEmpty()) {
+                throw new FrameworkException("CSV write failed: Headers cannot be null or empty.");
+            }
+
+            if (rows == null || rows.isEmpty()) {
+                throw new FrameworkException("CSV write failed: Rows cannot be null.");
+            }
 
             // UTF-8 to avoid OS specific issues, overwrite existing file
             try (BufferedWriter writer = Files.newBufferedWriter(filePath, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
@@ -48,5 +59,31 @@ public class CSVUtil {
         String escaped = value.replace("\"", "\"\"");
         return quote ? "\"" + escaped + "\"" : escaped;
     }
+
+
+    @Step("Validate CSV file at {csvPath}")
+    public static void validateCsv(Path csvPath) {
+        try {
+            if (!Files.exists(csvPath)) {
+                throw new RuntimeException("CSV file not generated: " + csvPath.toAbsolutePath());
+            }
+
+            if (Files.size(csvPath) == 0) {
+                throw new RuntimeException("CSV file is empty: " + csvPath.toAbsolutePath());
+            }
+
+            List<String> lines = Files.readAllLines(csvPath);
+
+            if (lines.size() < 2) {
+                throw new RuntimeException(
+                        "CSV has no data rows (only header or empty): " + csvPath.toAbsolutePath()
+                );
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to validate CSV: " + csvPath.toAbsolutePath(), e);
+        }
+    }
+
 
 }
