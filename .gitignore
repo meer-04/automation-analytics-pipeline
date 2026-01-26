@@ -2,7 +2,7 @@
 target/
 /automation-java/.allure/
 /automation-java/.env
-/output/allure-report/
+/output/
 /data/
 
 # Compiled class file
