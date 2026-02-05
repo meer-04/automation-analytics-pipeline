@@ -1,0 +1,63 @@
+name: Automation + Analytics Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+
+    steps:
+      # CHECKOUT CODE
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # JAVA SETUP
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - name: Set up Maven
+        uses: stCarolas/setup-maven@v4
+        with:
+          maven-version: 3.9.12
+
+      # PYTHON SETUP
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          cd analytics-python
+          pip install -r requirements.txt
+
+      # CHROME SETUP
+      - name: Install Google Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      # RUN JAVA SELENIUM AUTOMATION
+      - name: Run Selenium Automation (Java)
+        run: |
+          cd automation-java
+          mvn clean test -Dbrowser=chrome -Dheadless=true
+
+      # RUN PYTHON ANALYSIS
+      - name: Run Python Analysis
+        run: |
+          cd analytics-py
+          python analysis.py
+
+      # UPLOAD OUTPUTS AS ARTIFACTS
+      - name: Upload analysis artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: transaction-analysis-output
+          path: output/
