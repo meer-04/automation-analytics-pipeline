@@ -93,15 +93,16 @@ public class DriverFactory extends ExecutionParameters {
     private ChromeOptions setChromeOptions() {
         ChromeOptions chromeOptions = new ChromeOptions();
         chromeOptions.setAcceptInsecureCerts(true);
+
         // Argument Handling
+        List<String> argsList = new ArrayList<>();
+        if (isHeadless())
+            argsList.add("--headless=new");
         String extraArgs = CONFIG_PROPERTIES.getProperty("chrome.options");
         if (extraArgs != null && !extraArgs.isEmpty()) {
-            List<String> argsList = new ArrayList<>(Arrays.asList(extraArgs.split(";")));
-            if (System.getProperty("headless") != null && System.getProperty("headless").equalsIgnoreCase("false")) {
-                argsList.remove("--headless");
-            }
-            chromeOptions.addArguments(argsList);
+            argsList.addAll(Arrays.asList(extraArgs.split(";")));
         }
+        chromeOptions.addArguments(argsList);
         // Capabilities Handling
         Map<String, Object> additionalCaps = getAdditionalCapabilities("chrome");
         if (additionalCaps != null) {
@@ -113,15 +114,16 @@ public class DriverFactory extends ExecutionParameters {
     private EdgeOptions setEdgeOptions() {
         EdgeOptions edgeOptions = new EdgeOptions();
         edgeOptions.setAcceptInsecureCerts(true);
+
         // Argument Handling
+        List<String> argsList = new ArrayList<>();
+        if (isHeadless())
+            argsList.add("--headless");
         String extraArgs = CONFIG_PROPERTIES.getProperty("edge.options");
         if (extraArgs != null && !extraArgs.isEmpty()) {
-            List<String> argsList = new ArrayList<>(Arrays.asList(extraArgs.split(";")));
-            if (System.getProperty("headless") != null && System.getProperty("headless").equalsIgnoreCase("false")) {
-                argsList.remove("--headless");
-            }
-            edgeOptions.addArguments(argsList);
+            argsList.addAll(Arrays.asList(extraArgs.split(";")));
         }
+        edgeOptions.addArguments(argsList);
         // Capabilities Handling
         Map<String, Object> additionalCaps = getAdditionalCapabilities("edge");
         if (additionalCaps != null) {
@@ -134,14 +136,14 @@ public class DriverFactory extends ExecutionParameters {
         FirefoxOptions firefoxOptions = new FirefoxOptions();
         firefoxOptions.setAcceptInsecureCerts(true);
         // Argument Handling
+        List<String> argsList = new ArrayList<>();
+        if (isHeadless())
+            argsList.add("--headless");
         String extraArgs = CONFIG_PROPERTIES.getProperty("firefox.options");
         if (extraArgs != null && !extraArgs.isEmpty()) {
-            List<String> argsList = new ArrayList<>(Arrays.asList(extraArgs.split(";")));
-            if (System.getProperty("headless") != null && System.getProperty("headless").equalsIgnoreCase("false")) {
-                argsList.remove("--headless");
-            }
-            firefoxOptions.addArguments(argsList);
+            argsList.addAll(Arrays.asList(extraArgs.split(";")));
         }
+        firefoxOptions.addArguments(argsList);
         // Capabilities Handling
         Map<String, Object> additionalCaps = getAdditionalCapabilities("firefox");
         if (additionalCaps != null) {
