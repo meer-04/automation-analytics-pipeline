@@ -20,7 +20,7 @@ public class ExecutionParameters {
         System.out.println("Fetching Execution Parameters...");
         this.browser = setValues("browser");
         this.url = setValues("url");
-        this.headless = System.getProperty("headless") != null && System.getProperty("headless").equalsIgnoreCase("true");
+        this.headless = !"false".equalsIgnoreCase(System.getProperty("headless"));
     }
 
     String setValues(String key) {

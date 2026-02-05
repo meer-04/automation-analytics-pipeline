@@ -47,7 +47,7 @@ jobs:
       - name: Run Selenium Automation (Java)
         run: |
           cd automation-java
-          mvn clean test -Dbrowser=chrome -Dheadless=true
+          mvn clean test -Dbrowser=chrome
 
       # RUN PYTHON ANALYSIS
       - name: Run Python Analysis
