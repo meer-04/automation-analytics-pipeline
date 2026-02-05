@@ -87,3 +87,102 @@ plt.savefig(output_dir / "debit_over_time.png")
 plt.close()
 
 print("Chart saved: debit_over_time.png")
+
+
+# High-Value Transaction Detection
+HIGH_VALUE_THRESHOLD = 5000
+
+high_value_debits = df[
+    df["Debit Amount_Clean"].notna() &
+    (df["Debit Amount_Clean"] >= HIGH_VALUE_THRESHOLD)
+    ]
+
+print("\n--- HIGH-VALUE DEBIT TRANSACTIONS ---")
+print(f"Threshold used: {HIGH_VALUE_THRESHOLD}")
+print(f"Count: {len(high_value_debits)}")
+
+print(
+    high_value_debits[
+        ["Transaction Date", "Debit Amount_Clean"]
+    ].sort_values("Debit Amount_Clean", ascending=False)
+)
+
+
+# HTML Dashboard
+dashboard_path = output_dir / "dashboard.html"
+html_content = f"""
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Transaction Analysis Dashboard</title>
+    <style>
+        body {{
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f9f9f9;
+        }}
+        h1 {{
+            color: #333;
+        }}
+        .metrics {{
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }}
+        .card {{
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-width: 200px;
+        }}
+        img {{
+            margin-top: 20px;
+            max-width: 800px;
+        }}
+    </style>
+</head>
+<body>
+
+<h1>Transaction Analysis Dashboard</h1>
+<p>Automated analysis generated from transaction data.</p>
+
+<div class="metrics">
+    <div class="card">
+        <h3>Total Transactions</h3>
+        <p>{total_transactions}</p>
+    </div>
+    <div class="card">
+        <h3>Total Credit</h3>
+        <p>{total_credit}</p>
+    </div>
+    <div class="card">
+        <h3>Total Debit</h3>
+        <p>{total_debit}</p>
+    </div>
+    <div class="card">
+        <h3>Net Cash Flow</h3>
+        <p>{net_cash_flow}</p>
+    </div>
+</div>
+
+<h2>Credit vs Debit</h2>
+<img src="credit_vs_debit.png" alt="Credit vs Debit">
+
+<h2>Daily Debit Over Time</h2>
+<img src="debit_over_time.png" alt="Debit Over Time">
+
+<div style="background-color: #D32F2F; color: white; padding: 20px; border-radius: 5px;">
+<h2 style="margin-top: 0;">High-Value Transaction Summary</h2>
+<p>Threshold used: {HIGH_VALUE_THRESHOLD}</p>
+<p>High-value debit transactions found: {len(high_value_debits)}</p>
+</div>
+
+</body>
+</html>
+"""
+
+with open(dashboard_path, "w", encoding="utf-8") as f:
+    f.write(html_content)
+
+print(f"Dashboard generated: {dashboard_path}")
