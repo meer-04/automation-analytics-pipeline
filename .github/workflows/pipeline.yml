@@ -34,7 +34,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          cd analytics-python
+          cd analytics-py
           pip install -r requirements.txt
 
       # CHROME SETUP
