@@ -3,7 +3,7 @@ setlocal enabledelayedexpansion
 
 cd automation-java
 
-call mvn clean test %*
+call mvn clean verify %*
 
 IF %ERRORLEVEL% NEQ 0 (
     echo Java automation failed

@@ -47,7 +47,7 @@ jobs:
       - name: Run Selenium Automation (Java)
         run: |
           cd automation-java
-          mvn clean test -Dbrowser=chrome
+          mvn clean verify -Dbrowser=chrome
 
       # RUN PYTHON ANALYSIS
       - name: Run Python Analysis
@@ -60,4 +60,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: transaction-analysis-output
-          path: output/
+          path: |
+            output/analysis
+            output/allure-report/index.html
